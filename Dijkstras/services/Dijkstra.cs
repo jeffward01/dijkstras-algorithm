@@ -29,6 +29,8 @@ namespace Dijkstras.services
             var previous = new Dictionary<char, char>(); //Holder varible to hold our previous node
             var distances = new Dictionary<char, int>(); //The distance beween our two nodes
             var nodes = new List<char>(); //List of nodes (this is gathered from our verticies
+            var priorityQueue = new PriorityQueue();
+
 
             List<char> path = null;
 
@@ -37,28 +39,34 @@ namespace Dijkstras.services
             {
                 //If vertex is the start distance for our mapping, for example 'A'
                 if (vertex.Key == start)
-                {   
+                {
                     //Set current disance from start node to 0.  0 because we are standing on it
                     distances[vertex.Key] = 0;
+                    priorityQueue.EnQueue(0, vertex.Value);
                 }
                 else
                 {
                     //If NOT our start node, then set the distance for our unvisted node to infinity (we dont know how far, we havent visited it yet)
                     distances[vertex.Key] = int.MaxValue;
+                    priorityQueue.EnQueue(int.MaxValue, vertex.Value);
                 }
                 //Add each vertex to our list of nodes.  This is our 'web of possible destiations'
                 nodes.Add(vertex.Key);
             }
 
-
+            // while(!priorityQueue.IsEmpty())  //If we wanted to use PriorityQueue
             while (nodes.Count != 0)
             {
                 //Sort the nodes from shortest value to largest.  We know this because we saved it in our dictionary values of char and int
-                nodes.Sort((x,y) => distances[x] - distances[y]);
+                nodes.Sort((x, y) => distances[x] - distances[y]);
 
                 //get the smallest (this is our current position)
                 var smallest = nodes[0];
                 nodes.Remove(smallest);
+
+                /*
+                 * var smallest = priorityQueue.DeQueue();
+                 */
 
                 //If smallest == finish
                 if (smallest == finish)
@@ -98,12 +106,20 @@ namespace Dijkstras.services
 
                         //Set the previous destination to our current (now previous) smallest node, and move onto the next smallest node
                         previous[neighbor.Key] = smallest;
+
+                        priorityQueue.EnQueue(alt, ConvertToDictionary(neighbor));
+
                     }
                 }
             }
             return path;
         }
 
+        public Dictionary<char, int> ConvertToDictionary(KeyValuePair<char, int> keyValuePair)
+        {
+            var list = new List<KeyValuePair<char, int>> { keyValuePair };
+            return list.ToDictionary(x => x.Key, x => x.Value);
+        }
 
         //Get count of number of vertices in dictionary
         public int GetNumberOfVerticies()
@@ -112,5 +128,41 @@ namespace Dijkstras.services
         }
 
 
+        public class PriorityQueue
+        {
+            Dictionary<int, Dictionary<char, int>> nodes = new Dictionary<int, Dictionary<char, int>>();
+
+            public void EnQueue(int priority, Dictionary<char, int> key)
+            {
+                nodes.Add(priority, key);
+                Sort();
+            }
+
+            public void Sort()
+            {
+                var sorted = nodes.OrderByDescending(x => x.Key);
+                nodes = sorted.ToDictionary(x => x.Key, x => x.Value);
+            }
+
+            public Dictionary<int, Dictionary<char, int>> DeQueue()
+            {
+                var smallestNode = nodes.FirstOrDefault();
+                var key = smallestNode.Key;
+                var value = smallestNode.Value;
+
+                Dictionary<int, Dictionary<char, int>> returnObj = new Dictionary<int, Dictionary<char, int>>();
+                returnObj.Add(key, value);
+                return returnObj;
+            }
+
+            public bool IsEmpty()
+            {
+                if (nodes.Count >= 1)
+                {
+                    return false;
+                }
+                return true;
+            }
+        }
     }
 }
