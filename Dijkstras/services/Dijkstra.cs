@@ -42,13 +42,13 @@ namespace Dijkstras.services
                 {
                     //Set current disance from start node to 0.  0 because we are standing on it
                     distances[vertex.Key] = 0;
-                    priorityQueue.EnQueue(0, vertex.Value);
+                   // priorityQueue.EnQueue(0, vertex.Value);  //Turned off
                 }
                 else
                 {
                     //If NOT our start node, then set the distance for our unvisted node to infinity (we dont know how far, we havent visited it yet)
                     distances[vertex.Key] = int.MaxValue;
-                    priorityQueue.EnQueue(int.MaxValue, vertex.Value);
+               //     priorityQueue.EnQueue(int.MaxValue, vertex.Value); //turned off
                 }
                 //Add each vertex to our list of nodes.  This is our 'web of possible destiations'
                 nodes.Add(vertex.Key);
@@ -107,7 +107,7 @@ namespace Dijkstras.services
                         //Set the previous destination to our current (now previous) smallest node, and move onto the next smallest node
                         previous[neighbor.Key] = smallest;
 
-                        priorityQueue.EnQueue(alt, ConvertToDictionary(neighbor));
+                        //priorityQueue.EnQueue(alt, ConvertToDictionary(neighbor));  //Turned off
 
                     }
                 }
